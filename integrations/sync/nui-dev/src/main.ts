@@ -63,6 +63,7 @@ function onSpawn(apiURL: string) {
   socket.on("connect_error", (error) => fetchNUI(NuiEvents.ConnectionError, { error }));
   socket.on(SocketEvents.Create911Call, (call) => fetchNUI(NuiEvents.Create911Call, call));
   socket.on(SocketEvents.PANIC_BUTTON_ON, (unit) => fetchNUI(NuiEvents.PanicButtonOn, unit));
+  socket.on(SocketEvents.Update911Call, (call) => fetchNUI(NuiEvents.Update911Call, call));
 
   socket.on(SocketEvents.Signal100, (enabled: boolean) => {
     if (enabled) {

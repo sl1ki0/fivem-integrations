@@ -3,6 +3,7 @@ import { ClientEvents, ServerEvents, SnCommands } from "~/types/events";
 import { getPlayerApiToken } from "../server";
 import { cadRequest } from "~/utils/fetch.server";
 import { GetUserData } from "@snailycad/types/api";
+import { getPostal } from "~/utils/postal/getPostal";
 
 onNet(ServerEvents.Incoming911Call, async (call: Call911) => {
   CancelEvent();
@@ -52,3 +53,26 @@ onNet(ServerEvents.PanicButtonOn, async (unit: { formattedUnitData: string }) =>
     });
   }
 });
+
+
+
+// onNet(ServerEvents.ValidatePanicRoute, async (position: object, callsign: string) => {
+//   CancelEvent();
+
+//   const PanicUnitPostal = getPostal(position)
+//   const player = global.source;
+//   const userApiToken = getPlayerApiToken(player);
+//   if (!userApiToken) return;
+
+//   const { data } = await cadRequest<GetUserData>({
+//     method: "POST",
+//     path: "/user?includeActiveUnit=true",
+//     headers: {
+//       userApiToken,
+//     },
+//   });
+  
+
+//   const isOnDuty = data?.unit && data.unit.status?.shouldDo !== ShouldDoType.SET_OFF_DUTY;
+//   // here coming client event
+// })

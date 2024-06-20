@@ -71,6 +71,14 @@ export enum ServerEvents {
    * when a panic button is pressed, we want to notify active units in-game
    */
   PanicButtonOn = "sna-sync:panic-button-on",
+
+    /**
+   * when a panic button is pressed, we want active units to have
+   * route to unit, who activated panic button
+   */
+  ValidatePanicRoute = "sna-sync:validate-panic-route",
+
+  CallUpdated = "sna-sync:call-updated"
 }
 
 export enum ClientEvents {
@@ -126,4 +134,7 @@ export enum NuiEvents {
 
   /** when a panic button is pressed, we want to notify active units in-game */
   PanicButtonOn = "sna-sync-nui:panic-button-on",
+
+  /** a socket event for `Update911Call` was received from the SnailyCAD API. */
+  Update911Call = "sna-sync-nui:update-911-call"
 }
