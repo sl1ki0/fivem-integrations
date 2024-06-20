@@ -77,7 +77,7 @@ onNet(ServerEvents.CallUpdated, async (call: Call911) => {
     if(event.translationData.key === "unitAssignedToCall"){
       let units = event.translationData.units;
       discordIdsAssigned.push(units[0].unit.user.discordId);
-    }
+    };
   };
 
   const isOnDuty = data?.unit && data.unit.status?.shouldDo !== ShouldDoType.SET_OFF_DUTY;
@@ -86,27 +86,28 @@ onNet(ServerEvents.CallUpdated, async (call: Call911) => {
     let discordId = discordIdsAssigned[i];
     if(discordId === discordIdFivem && isOnDuty){
       emitNet(ClientEvents.AutoPostalOnAttach, player, call.postal)
-    }
-  }
+    };
+  };
 })
 
-// onNet(ServerEvents.ValidatePanicRoute, async (position: object, callsign: string) => {
-//   CancelEvent();
+onNet(ServerEvents.ValidatePanicRoute, async ({position}: any) => {
+  CancelEvent();
 
-//   const PanicUnitPostal = getPostal(position)
-//   const player = global.source;
-//   const userApiToken = getPlayerApiToken(player);
-//   if (!userApiToken) return;
+  const panicUnitPostal = await getPostal(position);
+  const player = global.source;
+  const userApiToken = getPlayerApiToken(player);
+  if (!userApiToken) return;
 
-//   const { data } = await cadRequest<GetUserData>({
-//     method: "POST",
-//     path: "/user?includeActiveUnit=true",
-//     headers: {
-//       userApiToken,
-//     },
-//   });
-  
+  const { data } = await cadRequest<GetUserData>({
+    method: "POST",
+    path: "/user?includeActiveUnit=true",
+    headers: {
+      userApiToken,
+    },
+  });
 
-//   const isOnDuty = data?.unit && data.unit.status?.shouldDo !== ShouldDoType.SET_OFF_DUTY;
-//   // here coming client event
-// })
+  const isOnDuty = data?.unit && data.unit.status?.shouldDo !== ShouldDoType.SET_OFF_DUTY;
+  if(isOnDuty){
+    emitNet(ClientEvents.AutoPostalOnAttach, player, panicUnitPostal)
+  };
+})

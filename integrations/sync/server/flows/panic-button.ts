@@ -75,12 +75,11 @@ RegisterCommand(
       ],
     });
 
-    // const playerPed = GetPlayerPed(source);
-    // const [x, y, z] = GetEntityCoords(playerPed, true);
-    // const heading = GetEntityHeading(PlayerPedId());
-    // if(isCurrentlyInPanicButtonState){
-    //   emitNet(ServerEvents.ValidatePanicRoute, {position: { x, y, z, heading }, updatedUnit})
-    // }
+    const playerPed = GetPlayerPed(source);
+    const [x, y, z] = GetEntityCoords(playerPed, true);
+    if(isCurrentlyInPanicButtonState){
+      emitNet(ServerEvents.ValidatePanicRoute, {position: { x, y, z}})
+    };
   },
   false,
 );
