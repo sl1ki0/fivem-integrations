@@ -54,7 +54,41 @@ onNet(ServerEvents.PanicButtonOn, async (unit: { formattedUnitData: string }) =>
   }
 });
 
+onNet(ServerEvents.CallUpdated, async (call: Call911) => {
+  CancelEvent();
 
+  const player = global.source;
+  const userApiToken = getPlayerApiToken(player);
+  if (!userApiToken) return;
+
+  const { data } = await cadRequest<GetUserData>({
+    method: "POST",
+    path: "/user?includeActiveUnit=true",
+    headers: {
+      userApiToken,
+    },
+  });
+
+  const callEvents = call.events;
+  let discordIdsAssigned = [];
+
+  for(let i = 0; i < callEvents.length; i++){
+    let event = callEvents[i];
+    if(event.translationData.key === "unitAssignedToCall"){
+      let units = event.translationData.units;
+      discordIdsAssigned.push(units[0].unit.user.discordId);
+    }
+  };
+
+  const isOnDuty = data?.unit && data.unit.status?.shouldDo !== ShouldDoType.SET_OFF_DUTY;
+  let discordIdFivem = GetPlayerIdentifierByType(player, 'discord');
+  for (let i = 0; i < discordIdsAssigned.length; i++) {
+    let discordId = discordIdsAssigned[i];
+    if(discordId === discordIdFivem && isOnDuty){
+      emitNet(ClientEvents.AutoPostalOnAttach(player, call.postal))
+    }
+  }
+})
 
 // onNet(ServerEvents.ValidatePanicRoute, async (position: object, callsign: string) => {
 //   CancelEvent();
