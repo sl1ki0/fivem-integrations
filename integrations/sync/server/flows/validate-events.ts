@@ -85,7 +85,7 @@ onNet(ServerEvents.CallUpdated, async (call: Call911) => {
   for (let i = 0; i < discordIdsAssigned.length; i++) {
     let discordId = discordIdsAssigned[i];
     if(discordId === discordIdFivem && isOnDuty){
-      emitNet(ClientEvents.AutoPostalOnAttach(player, call.postal))
+      emitNet(ClientEvents.AutoPostalOnAttach, player, call.postal)
     }
   }
 })
