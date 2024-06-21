@@ -54,11 +54,13 @@ onNet(ServerEvents.PanicButtonOn, async (unit: { formattedUnitData: string }) =>
   }
 });
 
-onNet(ServerEvents.CallUpdated, async (call: Call911) => {
+onNet(ServerEvents.CallUpdated, async (call: any) => {
   CancelEvent();
 
   const player = global.source;
   const userApiToken = getPlayerApiToken(player);
+  const playerDiscordId = GetPlayerIdentifierByType(player, 'discord');
+  const formattedPlayerDiscordId = playerDiscordId.replace("discord:", "");
   if (!userApiToken) return;
 
   const { data } = await cadRequest<GetUserData>({
@@ -69,24 +71,19 @@ onNet(ServerEvents.CallUpdated, async (call: Call911) => {
     },
   });
 
-  const callEvents = call.events;
-  let discordIdsAssigned = [];
+  const isOnDuty = data?.unit && data.unit.status?.shouldDo !== ShouldDoType.SET_OFF_DUTY;
+  const lastEvent = call.events[call.events.length - 1];
+  const attachedUnits = lastEvent.translationData.units;
+  let usersDiscordIds = [];
 
-  for(let i = 0; i < callEvents.length; i++){
-    let event = callEvents[i];
-    if(event.translationData.key === "unitAssignedToCall"){
-      let units = event.translationData.units;
-      discordIdsAssigned.push(units[0].unit.user.discordId);
-    };
+  for (let i = 0; i < attachedUnits.length; i++) {
+    if(lastEvent.translationData.key === "unitAssignedToCall"){
+      usersDiscordIds.push(attachedUnits[i].unit.user.discordId);
+    }
   };
 
-  const isOnDuty = data?.unit && data.unit.status?.shouldDo !== ShouldDoType.SET_OFF_DUTY;
-  let discordIdFivem = GetPlayerIdentifierByType(player, 'discord');
-  for (let i = 0; i < discordIdsAssigned.length; i++) {
-    let discordId = discordIdsAssigned[i];
-    if(discordId === discordIdFivem && isOnDuty){
-      emitNet(ClientEvents.AutoPostalOnAttach, player, call.postal)
-    };
+  if(isOnDuty && usersDiscordIds.includes(formattedPlayerDiscordId)){
+    emitNet(ClientEvents.AutoPostalOnAttach, player, call.postal)
   };
 })
 
@@ -94,6 +91,7 @@ onNet(ServerEvents.ValidatePanicRoute, async ({position}: any) => {
   CancelEvent();
 
   const panicUnitPostal = await getPostal(position);
+  console.log(panicUnitPostal);
   const player = global.source;
   const userApiToken = getPlayerApiToken(player);
   if (!userApiToken) return;

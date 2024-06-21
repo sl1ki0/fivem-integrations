@@ -109,6 +109,8 @@ export enum ClientEvents {
   CreateNotification = "sna-sync:create-notification",
 
   AutoPostalOnAttach = "sna-sync:attach-postal",
+
+  CreateRouteOnUpdate ="sna-sync:create-route-on-update",
 }
 
 export enum NuiEvents {
@@ -136,5 +138,5 @@ export enum NuiEvents {
   PanicButtonOn = "sna-sync-nui:panic-button-on",
 
   /** a socket event for `Update911Call` was received from the SnailyCAD API. */
-  Update911Call = "sna-sync-nui:update-911-call"
+  Update911Call = "sna-sync-nui:update-911-call",
 }
