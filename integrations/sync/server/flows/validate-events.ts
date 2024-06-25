@@ -87,11 +87,12 @@ onNet(ServerEvents.CallUpdated, async (call: any) => {
   };
 })
 
-onNet(ServerEvents.ValidatePanicRoute, async ({position}: any) => {
+onNet(ServerEvents.ValidatePanicRoute, async ({ source: street, position }: any) => {
   CancelEvent();
 
-  const panicUnitPostal = await getPostal(position);
-  console.log(panicUnitPostal);
+  const postal = await getPostal(position);
+
+  console.log(`Postal on validate: ${postal}`);
   const player = global.source;
   const userApiToken = getPlayerApiToken(player);
   if (!userApiToken) return;
@@ -105,7 +106,13 @@ onNet(ServerEvents.ValidatePanicRoute, async ({position}: any) => {
   });
 
   const isOnDuty = data?.unit && data.unit.status?.shouldDo !== ShouldDoType.SET_OFF_DUTY;
-  if(isOnDuty){
-    emitNet(ClientEvents.AutoPostalOnAttach, player, panicUnitPostal)
-  };
+  if(isOnDuty && postal != null){
+    emitNet(ClientEvents.AutoPostalOnAttach, player, postal);
+    emitNet(ClientEvents.CreateNotification, player, {
+      message: `Panic button have been activated on ${street}, ${postal}`,
+      title: "Panic Unit Location Detected"
+    });
+  } else if(postal === null){
+    console.log("Error while getting postal");
+  }
 })
