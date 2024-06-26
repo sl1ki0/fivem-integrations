@@ -37,7 +37,7 @@ onNet(ClientEvents.RequestPanicStatusFlow, () => {
   const heading = GetEntityHeading(PlayerPedId());
 
   setImmediate(() => {
-    emitNet(ServerEvents.ValidatePanicRoute, {
+    emitNet(ServerEvents.TransferPanicEventToServer, {
       street: lastStreetName,
       position: {x, y, z, heading},
     })
