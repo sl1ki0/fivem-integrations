@@ -78,6 +78,8 @@ export enum ServerEvents {
    */
   ValidatePanicRoute = "sna-sync:validate-panic-route",
 
+  TransferPanicEventToServer = "sna-sync:transfer-panic-event-to-server",
+
   CallUpdated = "sna-sync:call-updated",
 }
 

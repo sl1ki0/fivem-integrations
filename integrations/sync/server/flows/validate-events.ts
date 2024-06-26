@@ -3,7 +3,6 @@ import { ClientEvents, ServerEvents, SnCommands } from "~/types/events";
 import { getPlayerApiToken } from "../server";
 import { cadRequest } from "~/utils/fetch.server";
 import { GetUserData } from "@snailycad/types/api";
-import { getPostal } from "~/utils/postal/getPostal";
 
 onNet(ServerEvents.Incoming911Call, async (call: Call911) => {
   CancelEvent();
@@ -59,8 +58,6 @@ onNet(ServerEvents.CallUpdated, async (call: any) => {
 
   const player = global.source;
   const userApiToken = getPlayerApiToken(player);
-  const playerDiscordId = GetPlayerIdentifierByType(player, 'discord');
-  const formattedPlayerDiscordId = playerDiscordId.replace("discord:", "");
   if (!userApiToken) return;
 
   const { data } = await cadRequest<GetUserData>({
@@ -72,6 +69,8 @@ onNet(ServerEvents.CallUpdated, async (call: any) => {
   });
 
   const isOnDuty = data?.unit && data.unit.status?.shouldDo !== ShouldDoType.SET_OFF_DUTY;
+
+  const playersDiscordIds = getPlayerDiscordIds();
   const lastEvent = call.events[call.events.length - 1];
   const attachedUnits = lastEvent.translationData.units;
   let usersDiscordIds = [];
@@ -82,17 +81,19 @@ onNet(ServerEvents.CallUpdated, async (call: any) => {
     }
   };
 
-  if(isOnDuty && usersDiscordIds.includes(formattedPlayerDiscordId)){
-    emitNet(ClientEvents.AutoPostalOnAttach, player, call.postal)
+  for (let i = 0; i < playersDiscordIds.length; i++) {
+    let formattedPlayerDiscordId = playersDiscordIds[i]?.replace("discord:", "");
+    if(usersDiscordIds.includes(formattedPlayerDiscordId) && isOnDuty){
+      emitNet(ClientEvents.AutoPostalOnAttach, player, call.postal)
+    }
   };
-})
+});
 
-onNet(ServerEvents.ValidatePanicRoute, async ({ source: street, position }: any) => {
+onNet(ServerEvents.ValidatePanicRoute, async ({street, postal}: any) => {
   CancelEvent();
 
-  const postal = await getPostal(position);
+  console.log(`Degub. Postal: ${postal}, street: ${street}`);
 
-  console.log(`Postal on validate: ${postal}`);
   const player = global.source;
   const userApiToken = getPlayerApiToken(player);
   if (!userApiToken) return;
@@ -106,13 +107,32 @@ onNet(ServerEvents.ValidatePanicRoute, async ({ source: street, position }: any)
   });
 
   const isOnDuty = data?.unit && data.unit.status?.shouldDo !== ShouldDoType.SET_OFF_DUTY;
-  if(isOnDuty && postal != null){
+  if(isOnDuty){
     emitNet(ClientEvents.AutoPostalOnAttach, player, postal);
     emitNet(ClientEvents.CreateNotification, player, {
       message: `Panic button have been activated on ${street}, ${postal}`,
       title: "Panic Unit Location Detected"
     });
-  } else if(postal === null){
-    console.log("Error while getting postal");
+  };
+});
+
+function getPlayerDiscordIds() {
+  const num = GetNumPlayerIndices();
+  let players = [];
+  let discordIds = [];
+
+  for (let i = 0; i < num; i++) {
+    players[i] = GetPlayerFromIndex(i);
   }
-})
+
+  for (let i = 0; i < num; i++){
+    let playerDiscordId = GetPlayerIdentifierByType(players[i], 'discord');
+    if(playerDiscordId !== null){
+      discordIds.push(playerDiscordId);
+    } else {
+      console.log("Error occured while getting Discord ID");
+    };
+  };
+
+  return discordIds
+};
