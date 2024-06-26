@@ -9,6 +9,7 @@ import {
   Officer,
   StatusValue,
 } from "@snailycad/types";
+import { getPostal } from "~/utils/postal/getPostal";
 
 /**
  * when a player leaves the server, we want to set their status to off-duty
@@ -210,6 +211,20 @@ onNet(
     });
   },
 );
+
+onNet(ServerEvents.TransferPanicEventToServer,async ({street, position}: any) => {
+  const postal = await getPostal(position);
+
+  if(postal !== null){
+    emitNet(ServerEvents.ValidatePanicRoute, {
+      street: street,
+      postal: postal
+    });
+  } else {
+    console.error(`No postal was found`);
+  };
+
+});
 
 function getUnitName(unit: CombinedEmsFdUnit | CombinedLeoUnit | Officer | EmsFdDeputy) {
   if ("deputies" in unit || "officers" in unit) return "";
