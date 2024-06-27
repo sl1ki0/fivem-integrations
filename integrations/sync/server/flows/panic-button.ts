@@ -1,6 +1,6 @@
 import { cadRequest } from "~/utils/fetch.server";
 import { getPlayerApiToken, prependSnailyCAD } from "../server";
-import { ClientEvents, SnCommands } from "~/types/events";
+import { ClientEvents, ServerEvents, SnCommands } from "~/types/events";
 import {
   GetUserData,
   PostEmsFdTogglePanicButtonData,
@@ -75,10 +75,15 @@ RegisterCommand(
       ],
     });
 
+    const playerPed = GetPlayerPed(source);
+    const [x, y, z] = GetEntityCoords(playerPed, true);
+    const heading = GetEntityHeading(playerPed);
+
     if(isCurrentlyInPanicButtonState){
-      emitNet(ClientEvents.RequestPanicStatusFlow, source);
-      console.log(data.unit);
-    }
+      emitNet(ServerEvents.ValidatePanicRoute, {
+        position: {x, y, z, heading},
+      });
+    };
   },
   false,
 );

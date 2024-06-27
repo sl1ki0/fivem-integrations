@@ -3,6 +3,7 @@ import { ClientEvents, ServerEvents, SnCommands } from "~/types/events";
 import { getPlayerApiToken } from "../server";
 import { cadRequest } from "~/utils/fetch.server";
 import { GetUserData } from "@snailycad/types/api";
+import { getPostal } from "~/utils/postal/getPostal";
 
 onNet(ServerEvents.Incoming911Call, async (call: Call911) => {
   CancelEvent();
@@ -89,10 +90,8 @@ onNet(ServerEvents.CallUpdated, async (call: any) => {
   };
 });
 
-onNet(ServerEvents.ValidatePanicRoute, async ({street, postal}: any) => {
+onNet(ServerEvents.ValidatePanicRoute, async (postion: any) => {
   CancelEvent();
-
-  console.log(`Degub. Postal: ${postal}, street: ${street}`);
 
   const player = global.source;
   const userApiToken = getPlayerApiToken(player);
@@ -106,13 +105,16 @@ onNet(ServerEvents.ValidatePanicRoute, async ({street, postal}: any) => {
     },
   });
 
+  const postal = await getPostal(postion);
+  console.log(`Postal debug: ${postal}`);
+
   const isOnDuty = data?.unit && data.unit.status?.shouldDo !== ShouldDoType.SET_OFF_DUTY;
   if(isOnDuty){
     emitNet(ClientEvents.AutoPostalOnAttach, player, postal);
-    emitNet(ClientEvents.CreateNotification, player, {
-      message: `Panic button have been activated on ${street}, ${postal}`,
-      title: "Panic Unit Location Detected"
-    });
+    // emitNet(ClientEvents.CreateNotification, player, {
+    //   message: `Panic button have been activated on ${postal}`,
+    //   title: "Panic Unit Location Detected"
+    // });
   };
 });
 

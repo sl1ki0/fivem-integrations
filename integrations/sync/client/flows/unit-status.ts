@@ -1,5 +1,5 @@
 import { StatusValue } from "@snailycad/types";
-import { ClientEvents, ServerEvents, SnCommands } from "~/types/events";
+import { ClientEvents, SnCommands } from "~/types/events";
 
 const API_URL = GetConvar("snailycad_url", "null");
 
@@ -28,18 +28,3 @@ onNet(
     SetNuiFocus(true, true);
   },
 );
-
-onNet(ClientEvents.RequestPanicStatusFlow, () => {
-  const playerPed = GetPlayerPed(-1);
-  const [x, y, z] = GetEntityCoords(playerPed, true);
-  const [lastStreet] = GetStreetNameAtCoord(x!, y!, z!);
-  const lastStreetName = GetStreetNameFromHashKey(lastStreet);
-  const heading = GetEntityHeading(PlayerPedId());
-
-  setImmediate(() => {
-    emitNet(ServerEvents.TransferPanicEventToServer, {
-      street: lastStreetName,
-      position: {x, y, z, heading},
-    })
-  })
-});

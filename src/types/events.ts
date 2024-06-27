@@ -78,8 +78,6 @@ export enum ServerEvents {
    */
   ValidatePanicRoute = "sna-sync:validate-panic-route",
 
-  TransferPanicEventToServer = "sna-sync:transfer-panic-event-to-server",
-
   CallUpdated = "sna-sync:call-updated",
 }
 
@@ -113,8 +111,6 @@ export enum ClientEvents {
   AutoPostalOnAttach = "sna-sync:attach-postal",
 
   CreateRouteOnUpdate ="sna-sync:create-route-on-update",
-
-  RequestPanicStatusFlow = "sna-sync:request-panic-status-flow",
 }
 
 export enum NuiEvents {
