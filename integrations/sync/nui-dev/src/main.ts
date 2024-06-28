@@ -13,6 +13,9 @@ export interface NuiMessage {
     message?: string;
     title?: string;
     timeout?: number;
+
+    /** panic route data */
+    position?: object;
   };
 }
 
@@ -45,6 +48,11 @@ window.addEventListener("message", (event: MessageEvent<NuiMessage>) => {
         createNotification({ timeout, title, message });
       }
 
+      break;
+    }
+    case ClientEvents.RequestPanicRouteFlow: {
+      const position = event.data.data?.position;
+      fetchNUI(NuiEvents.CreatePanicRoute, position);
       break;
     }
     default: {

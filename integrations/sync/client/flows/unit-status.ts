@@ -28,3 +28,11 @@ onNet(
     SetNuiFocus(true, true);
   },
 );
+
+onNet(ClientEvents.RequestPanicRouteFlow, (position: any) => {
+  SendNuiMessage(JSON.stringify({
+    action: ClientEvents.RequestPanicRouteFlow,
+    data: {url: API_URL, position},
+    }),
+  );
+})

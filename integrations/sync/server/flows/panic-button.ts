@@ -80,9 +80,9 @@ RegisterCommand(
     const heading = GetEntityHeading(playerPed);
 
     if(isCurrentlyInPanicButtonState){
-      emitNet(ServerEvents.ValidatePanicRoute, {
+      emitNet(ClientEvents.RequestPanicRouteFlow, source, {
         position: {x, y, z, heading},
-      });
+      })
     };
   },
   false,

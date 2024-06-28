@@ -98,3 +98,9 @@ on(`__cfx_nui:${NuiEvents.Update911Call}`, (data: Call911, cb: Function) => {
   emitNet(ServerEvents.CallUpdated, data);
   cb({ ok: true });
 });
+
+RegisterNuiCallbackType(NuiEvents.CreatePanicRoute);
+on(`__cfx_nui:${NuiEvents.CreatePanicRoute}`, (data: { position: object }, cb: Function) => {
+  emitNet(ServerEvents.ValidatePanicRoute, data);
+  cb({ ok: true });
+});
