@@ -1,11 +1,12 @@
 import { cadRequest } from "~/utils/fetch.server";
 import { getPlayerApiToken, prependSnailyCAD } from "../server";
-import { ClientEvents, ServerEvents, SnCommands } from "~/types/events";
+import { ClientEvents, SnCommands } from "~/types/events";
 import {
   GetUserData,
   PostEmsFdTogglePanicButtonData,
   PostLeoTogglePanicButtonData,
 } from "@snailycad/types/api";
+import { getPostal } from "~/utils/postal/getPostal";
 
 RegisterCommand(
   SnCommands.PanicButton,
@@ -77,12 +78,11 @@ RegisterCommand(
 
     const playerPed = GetPlayerPed(source);
     const [x, y, z] = GetEntityCoords(playerPed, true);
-    const heading = GetEntityHeading(playerPed);
+    const position = {x, y};
+    const postal = await getPostal(position);
 
     if(isCurrentlyInPanicButtonState){
-      emitNet(ClientEvents.RequestPanicRouteFlow, source, {
-        position: {x, y, z, heading},
-      })
+      emitNet(ClientEvents.RequestPanicRouteFlow, -1, postal)
     };
   },
   false,

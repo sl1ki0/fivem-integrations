@@ -1,5 +1,5 @@
-import { StatusValue } from "@snailycad/types";
-import { ClientEvents, SnCommands } from "~/types/events";
+import { StatusValue, ShouldDoType } from "@snailycad/types";
+import { ClientEvents, ServerEvents, SnCommands } from "~/types/events";
 
 const API_URL = GetConvar("snailycad_url", "null");
 
@@ -29,10 +29,9 @@ onNet(
   },
 );
 
-onNet(ClientEvents.RequestPanicRouteFlow, (position: any) => {
-  SendNuiMessage(JSON.stringify({
-    action: ClientEvents.RequestPanicRouteFlow,
-    data: {url: API_URL, position},
-    }),
-  );
+onNet(ClientEvents.RequestPanicRouteFlow, async (postal: any) => {
+  const playerId = GetPlayerServerId(PlayerId());
+  setImmediate(() => {
+    emitNet(ServerEvents.ValidatePanicRoute, postal, playerId);
+  })
 })

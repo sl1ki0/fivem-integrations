@@ -141,6 +141,4 @@ export enum NuiEvents {
 
   /** a socket event for `Update911Call` was received from the SnailyCAD API. */
   Update911Call = "sna-sync-nui:update-911-call",
-
-  CreatePanicRoute = "sna-sync-nui:create-panic-route",
 }
