@@ -64,7 +64,23 @@ function onSpawn(apiURL: string) {
   socket.on("connect_error", (error) => fetchNUI(NuiEvents.ConnectionError, { error }));
   socket.on(SocketEvents.Create911Call, (call) => fetchNUI(NuiEvents.Create911Call, call));
   socket.on(SocketEvents.PANIC_BUTTON_ON, (unit) => fetchNUI(NuiEvents.PanicButtonOn, unit));
-  socket.on(SocketEvents.Update911Call, (call) => fetchNUI(NuiEvents.Update911Call, call));
+  socket.on(SocketEvents.Update911Call, (call) => {
+      const lastEvent = call.events[call.events.length - 1];
+      const key = lastEvent.translationData?.key;
+      const attachedUnits = lastEvent.translationData?.units;
+
+      if(key && attachedUnits){
+        
+        const data = {
+          attachedUnits: attachedUnits,
+          postal: call.postal
+        };
+
+        if(key === "unitAssignedToCall" || key === "unitsAssignedToCall"){
+          fetchNUI(NuiEvents.Update911Call, data)
+        }
+      }
+  });
 
   socket.on(SocketEvents.Signal100, (enabled: boolean) => {
     if (enabled) {

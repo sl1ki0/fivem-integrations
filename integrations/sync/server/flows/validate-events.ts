@@ -56,9 +56,7 @@ onNet(ServerEvents.PanicButtonOn, async (unit: { formattedUnitData: string }) =>
 
 onNet(ServerEvents.CallUpdated, async (call: any) => {
   CancelEvent();
-  const lastEvent = call.events[call.events.length - 1];
-  
-  if(lastEvent.translationData.key === "unitAssignedToCall" || lastEvent.translationData.key === "unitsAssignedToCall"){
+
     const player = global.source;
     const userApiToken = getPlayerApiToken(player);
     if (!userApiToken) return;
@@ -76,7 +74,7 @@ onNet(ServerEvents.CallUpdated, async (call: any) => {
     const playerDiscordId = GetPlayerIdentifierByType(player, 'discord');
     if (!playerDiscordId) return;
     const playerFormattedDiscordId = playerDiscordId.replace("discord:", "");
-    const attachedUnits = lastEvent.translationData.units;
+    const attachedUnits = call.attachedUnits;
     let usersDiscordIds = [];
   
     for (let i = 0; i < attachedUnits.length; i++) {
@@ -92,9 +90,6 @@ onNet(ServerEvents.CallUpdated, async (call: any) => {
     //     emitNet(ClientEvents.AutoPostalOnAttach, player, call.postal)
     //   }
     // };
-  } else {
-    return
-  }
 });
 
 onNet(ServerEvents.ValidatePanicRoute, async (postal: any, playerId: number) => {
